@@ -45,11 +45,11 @@ async function resolveSupabaseUserId(clerkUserId: string): Promise<string> {
     .single()
 
   if (error || !data) {
-    throw new PostServiceError(
-      `User record not found for clerk_user_id: ${clerkUserId}`,
-      'NOT_FOUND',
-      error
-    )
+    console.error('[postService] Failed to resolve Supabase user ID', {
+      clerkUserId,
+      error,
+    })
+    throw new PostServiceError('User record not found', 'NOT_FOUND', error)
   }
 
   return data.id
