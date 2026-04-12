@@ -42,9 +42,24 @@ export async function POST(req: NextRequest) {
   }
 
   // ---- 2. Rate limiting ------------------------------------------------
-  const { success: withinRateLimit, limit, remaining, reset } = await ratelimit.limit(
-    clerkUserId
-  )
+  let withinRateLimit: boolean
+  let limit: number
+  let remaining: number
+  let reset: number
+
+  try {
+    const rl = await ratelimit.limit(clerkUserId)
+    withinRateLimit = rl.success
+    limit = rl.limit
+    remaining = rl.remaining
+    reset = rl.reset
+  } catch (err) {
+    console.error('[polish] Rate limit service unavailable:', err)
+    return NextResponse.json(
+      { error: 'service_unavailable', message: 'Rate limit service is temporarily unavailable. Please try again shortly.' },
+      { status: 503 }
+    )
+  }
 
   if (!withinRateLimit) {
     const retryAfterSeconds = Math.max(1, Math.ceil((reset - Date.now()) / 1000))

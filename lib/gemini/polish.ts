@@ -142,8 +142,9 @@ export async function polishDraft(draft: string): Promise<PlatformVariants> {
   try {
     parsed = JSON.parse(cleaned)
   } catch (err) {
+    // Do not log raw content — it contains user draft data.
     throw new GeminiError(
-      `Gemini returned non-JSON content: "${cleaned.slice(0, 300)}"`,
+      `Gemini returned non-JSON content (length=${cleaned.length})`,
       err
     )
   }
