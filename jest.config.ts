@@ -47,11 +47,12 @@ const config: Config = {
     },
   ],
 
-  // Coverage collected from all source modules.
-  // Excludes: migrations, type-only files, page/layout roots, test files.
+  // Coverage scoped to lib/ only.
+  // app/api/** routes are exercised by integration tests, not unit tests.
+  // Including them here would report 0% for every route handler and trip the
+  // global threshold whenever only the unit suite runs with --coverage.
   collectCoverageFrom: [
     'lib/**/*.ts',
-    'app/api/**/*.ts',
     '!**/*.d.ts',
     '!**/node_modules/**',
     '!supabase/**',

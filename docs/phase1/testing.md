@@ -20,8 +20,10 @@ Both tiers use `@swc/jest` for fast TypeScript compilation. No Babel, no `ts-jes
 ## Running Tests Locally
 
 ```bash
-# 1. Copy the env template and fill in real test-project credentials
-cp .env.test.example .env.test
+# 1. Create .env.test with real test-project credentials (git-ignored, never commit)
+# Required vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, CLERK_SECRET_KEY,
+#                CLERK_WEBHOOK_SECRET, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+#                (Gemini + Upstash are mocked — stub values are fine)
 
 # 2. Run each tier independently
 npm run test:unit
@@ -33,8 +35,6 @@ npm run ci
 # 4. Coverage report — output written to coverage/
 npm run test:coverage
 ```
-
-`.env.test` is git-ignored. Never commit it. The example template at `.env.test.example` is safe to commit and documents every required variable.
 
 ---
 
