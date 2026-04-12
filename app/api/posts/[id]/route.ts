@@ -104,12 +104,9 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
         )
       }
       console.error('[PATCH /api/posts/:id]', err.message, err.cause)
-      return NextResponse.json(
-        { error: 'server_error', message: err.message },
-        { status: 500 }
-      )
+    } else {
+      console.error('[PATCH /api/posts/:id] Unexpected error:', err)
     }
-    console.error('[PATCH /api/posts/:id] Unexpected error:', err)
     return NextResponse.json(
       { error: 'server_error', message: 'An unexpected error occurred.' },
       { status: 500 }
@@ -173,12 +170,9 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
   } catch (err) {
     if (err instanceof PostServiceError) {
       console.error('[DELETE /api/posts/:id]', err.message, err.cause)
-      return NextResponse.json(
-        { error: 'server_error', message: err.message },
-        { status: 500 }
-      )
+    } else {
+      console.error('[DELETE /api/posts/:id] Unexpected error:', err)
     }
-    console.error('[DELETE /api/posts/:id] Unexpected error:', err)
     return NextResponse.json(
       { error: 'server_error', message: 'An unexpected error occurred.' },
       { status: 500 }
