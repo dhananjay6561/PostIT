@@ -73,6 +73,7 @@ app/
 
 supabase/migrations/
   20250412000004_add_increment_function.sql  ← atomic UPDATE via Postgres function
+  20250412000005_restrict_users_update_rls.sql  ← drops users_update_own policy (post-review security fix)
 ```
 
 ### Core logic (brief)
@@ -149,7 +150,8 @@ curl -X POST http://localhost:3000/api/ai/polish \
 - [ ] Gemini free tier is 15 RPM — during testing, back-to-back requests hit quota. Not a production concern with paid billing.
 - [ ] No integration tests — only manual curl testing at this stage.
 - [ ] Upstash rate limit is per-user, not per-IP — a user with multiple clients could be inadvertently limited across devices. Acceptable for MVP.
-- [ ] The debug token route (`app/api/debug/token/route.ts`) was created during testing and must be deleted before committing.
+- [ ] Check + increment are separate DB operations — two truly concurrent requests could both pass the limit gate. Mitigated in practice by the 10 req/min Upstash rate limiter. A single atomic `check_and_increment` RPC is the correct long-term fix; tracked for Phase 2.
+- [x] ~~`users_update_own` RLS policy allowed authenticated clients to modify `plan` and `posts_used_this_month`~~ — fixed in `20250412000005_restrict_users_update_rls.sql`: policy dropped entirely since no authenticated client needs direct UPDATE on the users table in Phase 1.
 
 ---
 
@@ -160,6 +162,7 @@ curl -X POST http://localhost:3000/api/ai/polish \
 - `lib/gemini/polish.ts` — Gemini 2.5 Flash client, single-call multi-platform prompt, JSON validation, `GeminiError`
 - `lib/limits/checkPostLimit.ts` — free (10/month) vs pro (unlimited) usage gate
 - `supabase/migrations/20250412000004_add_increment_function.sql` — atomic `increment_posts_used` Postgres function
+- `supabase/migrations/20250412000005_restrict_users_update_rls.sql` — drops `users_update_own` policy (security fix from code review)
 - `app/api/ai/polish/route.ts` — full pipeline: auth → Upstash rate limit → input validation → limit check → Gemini → atomic increment
 - New dependencies: `@google/generative-ai`, `@upstash/ratelimit`, `@upstash/redis`
 

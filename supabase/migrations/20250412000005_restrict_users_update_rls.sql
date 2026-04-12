@@ -1,0 +1,33 @@
+-- ============================================================
+-- Migration: Remove over-broad UPDATE policy on users table
+--
+-- Problem:
+--   The original users_update_own policy allowed any authenticated
+--   client (anon key + Clerk JWT) to UPDATE any column on their own
+--   users row — including plan and posts_used_this_month.
+--   If a Clerk JWT template is configured, a client could set
+--   plan = 'pro' or reset posts_used_this_month = 0 and bypass
+--   the entire billing gate.
+--
+-- Fix:
+--   Drop the policy entirely. In Phase 1, all writes to the users
+--   table go through the service-role client inside API routes,
+--   which bypasses RLS by design. No authenticated client needs
+--   direct UPDATE access.
+--
+-- Revisit when:
+--   A future phase needs client-editable profile fields (e.g. display
+--   name, timezone). At that point, add a column-specific policy that
+--   explicitly excludes plan and posts_used_this_month:
+--
+--   CREATE POLICY "users_update_own"
+--     ON users FOR UPDATE TO authenticated
+--     USING (clerk_user_id = auth.uid()::text)
+--     WITH CHECK (
+--       clerk_user_id = auth.uid()::text
+--       AND plan             = (SELECT plan             FROM users WHERE clerk_user_id = auth.uid()::text)
+--       AND posts_used_this_month = (SELECT posts_used_this_month FROM users WHERE clerk_user_id = auth.uid()::text)
+--     );
+-- ============================================================
+
+DROP POLICY IF EXISTS "users_update_own" ON users;
