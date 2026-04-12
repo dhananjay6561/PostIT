@@ -9,6 +9,7 @@ out/
 .env
 .env.local
 .env.*.local
+.env.test
 
 # Vercel
 .vercel
@@ -16,6 +17,9 @@ out/
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Test coverage output
+coverage/
 
 # OS
 .DS_Store
