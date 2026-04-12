@@ -63,12 +63,11 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     if (err instanceof PostServiceError) {
       console.error('[POST /api/posts]', err.message, err.cause)
-      return NextResponse.json(
-        { error: 'server_error', message: err.message },
-        { status: 500 }
-      )
+
+
+    } else {
+      console.error('[POST /api/posts] Unexpected error:', err)
     }
-    console.error('[POST /api/posts] Unexpected error:', err)
     return NextResponse.json(
       { error: 'server_error', message: 'An unexpected error occurred.' },
       { status: 500 }
@@ -102,12 +101,9 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     if (err instanceof PostServiceError) {
       console.error('[GET /api/posts]', err.message, err.cause)
-      return NextResponse.json(
-        { error: 'server_error', message: err.message },
-        { status: 500 }
-      )
+    } else {
+      console.error('[GET /api/posts] Unexpected error:', err)
     }
-    console.error('[GET /api/posts] Unexpected error:', err)
     return NextResponse.json(
       { error: 'server_error', message: 'An unexpected error occurred.' },
       { status: 500 }
