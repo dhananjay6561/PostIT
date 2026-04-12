@@ -93,7 +93,7 @@ describe('Application-layer data isolation — posts', () => {
     const { posts } = await getPosts(USER_B_CLERK_ID, 1, 50)
     const ids = posts.map((p) => p.id)
     expect(ids).toContain(postByBId)
-    expect(ids).not.toContain(userAId) // sanity: no user IDs leaking into posts
+    expect(posts.every((p) => p.user_id === userBId)).toBe(true)
   })
 
   it("getPostById for User B can retrieve User B's own post", async () => {

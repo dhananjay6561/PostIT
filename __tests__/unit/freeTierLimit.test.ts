@@ -9,6 +9,7 @@ import {
   checkFreeTierLimit,
   InvalidPlanError,
   FREE_PLAN_LIMIT,
+  PRO_PLAN_LIMIT,
 } from '@/lib/limits/checkPostLimit'
 
 describe('checkFreeTierLimit — free plan', () => {
@@ -41,7 +42,7 @@ describe('checkFreeTierLimit — pro plan', () => {
   it('allows when 10 posts used', () => {
     const result = checkFreeTierLimit(10, 'pro')
     expect(result.allowed).toBe(true)
-    expect(result.limit).toBe(-1)
+    expect(result.limit).toBe(PRO_PLAN_LIMIT)
   })
 
   it('allows when 1000 posts used', () => {
