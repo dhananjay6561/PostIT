@@ -20,10 +20,16 @@ Both tiers use `@swc/jest` for fast TypeScript compilation. No Babel, no `ts-jes
 ## Running Tests Locally
 
 ```bash
-# 1. Create .env.test with real test-project credentials (git-ignored, never commit)
-# Required vars: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, CLERK_SECRET_KEY,
-#                CLERK_WEBHOOK_SECRET, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-#                (Gemini + Upstash are mocked — stub values are fine)
+# 1. Create .env.test with the following vars (git-ignored, never commit):
+#
+# Real credentials (integration tests hit a live test DB):
+#   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_SUPABASE_ANON_KEY
+#   CLERK_SECRET_KEY, CLERK_WEBHOOK_SECRET, NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+#
+# Stub values are fine (modules validate env at init even when the SDK is mocked):
+#   GEMINI_API_KEY=stub
+#   UPSTASH_REDIS_REST_URL=http://stub
+#   UPSTASH_REDIS_REST_TOKEN=stub
 
 # 2. Run each tier independently
 npm run test:unit
@@ -163,7 +169,7 @@ Two Jest projects (`unit`, `integration`) sharing a common base config:
 - **Transformer**: `@swc/jest` with `{ module: { type: 'commonjs' } }`
 - **Module alias**: `@/*` → `<rootDir>/*` (matches `tsconfig.json` paths)
 - **Transform ignore**: next, `@clerk/nextjs`, `@clerk/backend`, `@supabase/supabase-js` are compiled (they ship ESM)
-- **Coverage**: from `lib/**/*.ts` and `app/api/**/*.ts`; threshold 80% lines / functions / branches
+- **Coverage**: from `lib/**/*.ts` only; threshold 80% lines / functions / branches (API routes are covered by integration tests, not unit tests)
 - **Reporters**: `lcov` (artifact) + `text-summary` (CI log output)
 
 ### `jest.setup.ts`
@@ -183,7 +189,7 @@ No changes to `jest.config.ts`, `ci.yml`, or `package.json` are required.
 
 ## Coverage Threshold
 
-80% lines, functions, and branches globally across `lib/` and `app/api/`. The build fails in CI if coverage drops below this. Run `npm run test:coverage` locally to check before pushing.
+80% lines, functions, and branches globally across `lib/`. The CI unit job collects coverage only from `lib/**/*.ts` — API route handlers live in `app/api/` and are exercised by integration tests, not the unit suite. Run `npm run test:coverage` locally to check before pushing.
 
 ```
 npm run test:coverage
