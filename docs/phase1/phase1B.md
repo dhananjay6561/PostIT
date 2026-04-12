@@ -152,6 +152,8 @@ curl -X POST http://localhost:3000/api/ai/polish \
 - [ ] Upstash rate limit is per-user, not per-IP — a user with multiple clients could be inadvertently limited across devices. Acceptable for MVP.
 - [ ] Check + increment are separate DB operations — two truly concurrent requests could both pass the limit gate. Mitigated in practice by the 10 req/min Upstash rate limiter. A single atomic `check_and_increment` RPC is the correct long-term fix; tracked for Phase 2.
 - [x] ~~`users_update_own` RLS policy allowed authenticated clients to modify `plan` and `posts_used_this_month`~~ — fixed in `20250412000005_restrict_users_update_rls.sql`: policy dropped entirely since no authenticated client needs direct UPDATE on the users table in Phase 1.
+- [x] ~~`ratelimit.limit()` had no error handling — Redis unavailability produced a raw unhandled 500~~ — fixed: wrapped in try/catch, returns `503 service_unavailable` with consistent `{ error, message }` shape.
+- [x] ~~GeminiError message embedded up to 300 chars of model output (user draft content) in server logs~~ — fixed: logs `length=N` only; raw content never written to logs.
 
 ---
 
