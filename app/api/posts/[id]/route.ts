@@ -169,6 +169,12 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
     return new NextResponse(null, { status: 204 })
   } catch (err) {
     if (err instanceof PostServiceError) {
+      if (err.code === 'NOT_FOUND') {
+        return NextResponse.json(
+          { error: 'not_found', message: 'Post not found.' },
+          { status: 404 }
+        )
+      }
       console.error('[DELETE /api/posts/:id]', err.message, err.cause)
     } else {
       console.error('[DELETE /api/posts/:id] Unexpected error:', err)

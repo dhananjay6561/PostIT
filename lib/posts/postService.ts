@@ -218,8 +218,14 @@ export async function deletePost(
     .delete()
     .eq('id', postId)
     .eq('user_id', userId)
+    .select('id')
+    .single()
 
   if (error) {
+    // PGRST116: no row matched — already deleted (TOCTOU between pre-fetch and delete).
+    if (error.code === 'PGRST116') {
+      throw new PostServiceError('Post not found', 'NOT_FOUND', error)
+    }
     throw new PostServiceError('Failed to delete post', 'DB_ERROR', error)
   }
 }
